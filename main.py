@@ -115,9 +115,14 @@ def input_3x3_matrix(name):
             continue
         try:
             row = [float(x) for x in parts]
-            matrix.append(row)
         except ValueError:
             print("  [오류] 숫자 파싱 실패: 유효한 숫자만 입력하세요.")
+            continue
+        # float()는 'nan', 'inf'도 숫자로 받아들이므로 따로 거른다
+        if any(v != v or v in (float("inf"), float("-inf")) for v in row):
+            print("  [오류] nan/inf는 사용할 수 없습니다. 일반 숫자를 입력하세요.")
+            continue
+        matrix.append(row)
     return matrix
 
 
@@ -362,16 +367,22 @@ def main():
     print("2. data.json 분석")
     print("3. [보너스] 1D vs 2D 메모리 최적화 벤치마크")
 
-    choice = input("선택: ").strip()
+    while True:
+        choice = input("선택: ").strip()
+        if choice in ("1", "2", "3"):
+            break
+        print("잘못된 선택입니다. 1, 2, 3 중 하나를 입력하세요.")
+
     if choice == "1":
         run_mode_1()
     elif choice == "2":
         run_mode_2(DATA_PATH)
-    elif choice == "3":
-        run_bonus_benchmark()
     else:
-        print("잘못된 선택입니다. 1, 2, 3 중 하나를 입력하세요.")
+        run_bonus_benchmark()
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except (KeyboardInterrupt, EOFError):
+        print("\n\n입력이 중단되어 프로그램을 종료합니다.")
